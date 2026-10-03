@@ -1,36 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Docshare
 
-## Getting Started
+A small Next.js document sharing app. Document records, admins, and submissions are stored in PostgreSQL through Prisma. PDFs are stored privately in Cloudflare R2 and sent as email attachments after a visitor submits their email.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Copy `.env.example` to `.env.local` and fill in `DATABASE_URL`, a random `AUTH_SECRET` of at least 32 characters, admin credentials, Gmail SMTP settings, and the R2 settings.
+2. Create an R2 bucket and an API token with object read/write access to that bucket. Set `R2_ENDPOINT` to `https://<account-id>.r2.cloudflarestorage.com`.
+3. Install dependencies with `npm install`.
+4. Run `npm run db:generate`, then `npm run db:migrate -- --name init` to create the PostgreSQL schema.
+5. Run `npm run seed` to create or update the admin account, then `npm run dev`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The seed command reads `ADMIN_EMAIL` and `ADMIN_PASSWORD` from the environment. Running it updates the password for that admin account.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Email delivery uses Gmail SMTP with `GMAIL_USER` and a Google App Password in `GMAIL_APP_PASSWORD`. `NEXT_PUBLIC_APP_URL` is used to build links shown in the admin dashboard.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Routes
 
-## Learn More
+- `/admin/login` signs in the administrator.
+- `/admin` manages documents and submission counts.
+- `/d/[slug]` displays a document title and email delivery form.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+PDF bytes are only sent as email attachments. No public PDF download route is provided.
+# DocShare
